@@ -76,4 +76,158 @@ private static void action(Object obj){
 ```
 * 클래스에는 기본적으로 toString() 메서드가 존재하므로 따로 호출하지 않아도 된다, 오버라이딩 했을떄도 마찬가지다
 * 관례적으로 withXxx() 같은 이름의 메서드는 불변 객체의 메서드이다. 이떄는 지정된 수정사항을 포함되는 객체의 새 인스턴스를 반환한다는 의미를 가진다
-* 
+
+# Section 4. String 클래스
+* String은 클래스임, int, boolean은 참조형
+* 자바에서 char -> 2byte, 단순히 영어, 숫자 -> 1byte
+* String 클래스의 주요 메서드
+  * length()` : 문자열의 길이를 반환한다.
+  * `charAt(int index)` : 특정 인덱스의 문자를 반환한다.
+  * `substring(int beginIndex, int endIndex)` : 문자열의 부분 문자열을 반환한다.
+  * `indexOf(String str)` : 특정 문자열이 시작되는 인덱스를 반환한다.
+  * `toLowerCase()` , `toUpperCase()` : 문자열을 소문자 또는 대문자로 변환한다.
+  * `trim()` : 문자열 양 끝의 공백을 제거한다.
+  * `concat(String str)` : 문자열을 더한다.
+* 풀(Pool): 공용 자원을 모아둔 곳
+* 문자열 비교는 항상 '==' 대신 equals()를 사용해야한다. 여러 개발자가 작업하는 과정에서 혼란을 야기할 수 있음
+* String은 불변 객체이므로 반환 객체를 새로 받아줘야함
+* 불변 객체로 구현 된 이유: 문자열 풀에서 같은 문자를 참조하는 참조 객체들의 값이 의도치 않게 변경되는 사이드 이펙트 문제가 발생할 수 있기 때문이다
+* CharSequence: String과 StringBuilder의 상위 타입임. 문자열을 처리하는 다양한 객체를 받을 수 있음
+* 공백 제거 메서드 trim()과 strip()의 차이
+  * trim(): 문자열 양쪽 끝의 공백을 제거한다. 단순 화이트 스페이스만 제거 가능
+  * strip(): 화이트 스페이스와 유니코드 공백을 포함하여 제거한다(자바 11부터 지원)
+* 주요 메서드 사용법
+```java
+// 문자열 기본 정보
+String str = "Hello, Java!";
+System.out.println("문자열의 길이: " + str.length());
+        System.out.println("문자열이 비어 있는지: " + str.isEmpty());
+        System.out.println("문자열이 비어 있거나 공백인지: " + str.isBlank());
+        System.out.println("공백 문자열이 비어 있거나 공백인지: " + "           ".isBlank());
+
+// 문자 접근
+char c = str.charAt(7);
+System.out.println("7번 인덱스의 문자 = " + c);
+
+// 문자열 비교
+String str1 = "Hello, Java!";
+String str2 = "hello, java!";
+String str3 = "Hello, World!";
+
+System.out.println("str1 equals str2: " + str1.equals(str2));
+        System.out.println("str1 equalsIgnoreCase str2: " + str1.equalsIgnoreCase(str2));
+        System.out.println("'b' compareTo 'a': " + "b".compareTo("a"));
+        System.out.println("str1 compareTo str3: " + str1.compareTo(str3));
+        System.out.println("str1 compareToIgnoreCase str2: " + str1.compareToIgnoreCase(str2));
+        System.out.println("str1 starts with 'Hello': " + str1.startsWith("Hello"));
+        System.out.println("str1 ends with 'Java!': " + str1.endsWith("Java!"));
+
+// 문자열 포함 여부 및 위치
+str = "Hello, Java! Welcome to Java world";
+        System.out.println("문자열에 'Java'가 포함되어 있는지: " + str.contains("Java"));
+        System.out.println("'Java'의 첫 번째 인덱스: " + str.indexOf("Java"));
+        System.out.println("인덱스 10부터 'Java'의 인덱스: " + str.indexOf("Java", 10));
+        System.out.println("'Java'의 마지막 인덱스: " + str.lastIndexOf("Java"));
+
+// 부분 문자열, 연결, 치환
+str = "Hello, Java! Welcome to Java";
+        System.out.println("인덱스 7부터의 부분 문자열: " + str.substring(7));
+        System.out.println("인덱스 7부터 12까지의 부분 문자열: " + str.substring(7, 12));
+        System.out.println("문자열 결합: " + str.concat("!!!"));
+        System.out.println("'Java'를 'World'로 대체: " + str.replace("Java", "World"));
+        System.out.println("첫 번째 'Java'를 'World'로 대체: " + str.replaceFirst("Java", "World"));
+
+// 대소문자 변환, 공백 제거
+String strWithSpaces = "     Java Programming ";
+System.out.println("소문자로 변환: " + strWithSpaces.toLowerCase());
+        System.out.println("대문자로 변환: " + strWithSpaces.toUpperCase());
+        System.out.println("공백 제거(trim): '" + strWithSpaces.trim() + "'");
+        System.out.println("공백 제거(strip): '" + strWithSpaces.strip() + "'");
+        System.out.println("앞 공백 제거(stripLeading): '" + strWithSpaces.stripLeading() + "'");
+        System.out.println("뒤 공백 제거(stripTrailing): '" + strWithSpaces.stripTrailing() + "'");
+
+// split & join
+str = "Apple,Banana,Orange";
+String[] splitStr = str.split(",");
+for (String s : splitStr) {
+        System.out.println(s);
+}
+
+String joinedStr = String.join("-", "A", "B", "C");
+System.out.println("연결된 문자열 = " + joinedStr);
+
+String result = String.join("-", splitStr);
+System.out.println("문자열 배열 연결 result = " + result);
+
+// valueOf & toCharArray
+int num = 100;
+boolean bool = true;
+Object obj = new Object();
+str = "Hello, Java!";
+
+String numString = String.valueOf(num);
+System.out.println("숫자의 문자열 값: " + numString);
+
+String boolString = String.valueOf(bool);
+System.out.println("불리언의 문자열 값: " + boolString);
+
+String objString = String.valueOf(obj);
+System.out.println("객체의 문자열 값: " + objString);
+
+// 빈 문자열 + 숫자
+String numString2 = "" + num;
+System.out.println("빈 문자열 + num: " + numString2);
+
+// 문자열을 문자 배열로 변환
+char[] strCharArray = str.toCharArray();
+System.out.println("문자열을 문자 배열로 변환: " + strCharArray);
+for (char ch : strCharArray) {
+        System.out.print(ch);
+}
+        System.out.println();
+
+// format, printf
+String format1 = String.format("num: %d, bool: %b, str: %s", num, bool, str);
+System.out.println(format1);
+
+String format2 = String.format("숫자: %.2f", 10.1234);
+System.out.println(format2);
+
+System.out.printf("숫자: %.3f\n", 10.1234);
+
+// 정규 표현식 matches
+String regex = "Hello, (Java!|World)";
+System.out.println("'str'이 패턴과 일치하는가? " + str.matches(regex));
+
+```
+
+* StringBuilder는 String과 다르게 private이 없어 수정이 가능하다(가변적이다)
+  * 장점: 메모리 사용 감소, 성능 향상
+  * 단점: 사이드 이펙트 주의
+  * 보편적인 사용법 추천: 먼저 StringBuilder로 문자열을 만들고 toString으로 변환
+* 보통 String은 아래와 같이 최적화 한다
+```java
+String result = str1 + str2;
+//아래와 같이 최적화
+String result = new StringBuilder().append(str1).append(str2).toString();
+```
+* String으로 문자열을 10만번 이어붙이면 2.5초가 걸린다. 매 반복마다 새로운 String객체를 생성하기 때문이다
+  * StringBuilder으로 하면 0.003초가 걸린다. 기존의 객체를 수정할 수 있기 때문이다
+* StringBuilder를 직접 사용하면 더 좋은 경우
+  * 반복문에서 반복해서 문자를 연결할 때
+  * 조건문을 통해 동적으로 문자열을 조합할 때
+  * 복잡한 문자열의 특정 부분을 변경해야 할 때
+  * 매우 긴 대용량 문자열을 다룰 떄
+* StringBuffer
+  * StringBuilder과 같은 기능을 한다
+  * 내부에 동기화가 되어, 멀티 쓰레드 환경에서 안전하다
+  * 하지만 동기화 오버헤드 때문에 속도가 비교적 느리다
+* 메서드 체이닝: 자기 자신의 참조값을 반환하여 메서드 호출을 여러번 연결해서 사용하는 것
+```java
+        int result = adder.add(1).add(2).add(3).getValue();
+```
+* StringBuilder는 메서드 체이닝 기법을 지원한다
+* indexOf()의 첫 번째 인자는 대상 단어(String | char)이고 두 번째 인자는 탐색 시작 지점이다. 세 번째 인자는 탐색 종료 지점이다. 찾지 못한다면 -1을 반환한다
+
+
+
