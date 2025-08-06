@@ -229,5 +229,61 @@ String result = new StringBuilder().append(str1).append(str2).toString();
 * StringBuilder는 메서드 체이닝 기법을 지원한다
 * indexOf()의 첫 번째 인자는 대상 단어(String | char)이고 두 번째 인자는 탐색 시작 지점이다. 세 번째 인자는 탐색 종료 지점이다. 찾지 못한다면 -1을 반환한다
 
+# Section 5. 래퍼, Class 클래스
+* 기본형 데이터의 특징
+  * 객체가 아님 -> 메서드 제공 불가
+  * null 값을 가질 수 없음
+* 숫자를 String으로 변환하려면 String.valueOf(value) 와 같이 사용할 수 있다
+* 참조형은 객체이며 null을 사용할 수 있다. 사용할 때 NullPointerException이 발생할 수 있으므로 조심해야 한다
+* new Integer() 대신에 valueOf()을 사용하자
+```java
+Integer newInteger = new Integer(10); //미래에 삭제 예정, 대신에 valueof()를 사용
+Integer integerObj = Integer.valueOf(10); //-128 ~ 127 자주 사용하는 숫자 값 재사용(캐싱), 불변, 자바가 최적화 해줌
+```
+* 박싱(Boxing): 기본형을 래퍼 클래스로 변경하는 것
+* 언박싱(Unboxing): 래퍼 클래스에 들어있는 기본형을 다시 꺼내는 메서드
+* 래퍼 클래스의 특징
+  * 내부의 값을 비교하려면 equals()를 사용해야 한다
+  * 객체를 그대로 출력해도 내부에 있는 값을 출력한다 (toString()이 재정의 됨)
+* 기본형 <-> 레퍼 클래스 간의 변환이 잦아 아래와 같이 오토 박싱, 언박싱을 만들었다
+```java
+//Primitive -> Wrapper
+int value = 7;
+Integer boxedValue = value; //오토 박싱(Auto-Boxing)
 
-
+//Wrapper -> Primitive
+int unboxedValue = boxedValue; // 오토 언박싱(Auto-Unboxing)
+```
+* parseInt(): 기본형을 반환. 각 타입에 parseXxx()가 존재
+* valueOf(): 래퍼 타입을 반환
+* 기본형 -> 래퍼 클래스 변환 시
+  * 래퍼클래스 변수명 = 래퍼클래스.valueOf(기본형변수명)
+  * Integer integer1 = Integer.valueOf(str);
+* 래퍼 클래스 -> 기본형 변환 시
+  * 기본형타입 변수명 = 래퍼클래스변수명.XxxValue();
+  * int intValue = integer1.intValue();
+* 래퍼 클래스 vs 기본형
+  * 10억번 연산을 수행한 결과 래퍼 클래스가 5배 정도 더 느리다
+    * 기본형은 4byte 단순히 값만 더하는 반면, 래퍼 클래스는 객체도 만들고 계속 값도 넣기 떄문에 상대적으로 느린것이다
+    * 하지만 일반적인 경우에는 `이런 부분을 최적화 하는 비용` > `코드를 유지보수 하기 좋은 경우` 이므로 후자를 선택하는 것이 낫다 (단, 연산을 지속해서 몇 십만을 한다면 래퍼 클래스를 쓰지 않는게 좋다)
+## Class 클래스
+* 패키지 명을 작성할 때 class는 예약어 이므로 clazz라고 관례상 적는다
+* Class 클래스의 주요 기능
+  * 타입 정보 얻기
+  * 리플렉션: 클래스에 정의된 메서드, 필드, 생성자 등을 조회, 객체 인스턴스 생성, 메서드 호출
+  * 동적 로딩과 생성: Class.forName() 메서드로 동적 로드, newInstance() 메서드를 통해 인스턴스 생성 가능
+  * 애노테이션 처리
+* throws Exceoption: 여기서는 컴파일 오류를 방지하기 위한 예외 처리
+* Class 클래스의 주요 기능**
+  * **getDeclaredFields()**: 클래스의 모든 필드를 조회한다.
+  * **getDeclaredMethods()**: 클래스의 모든 메서드를 조회한다.
+  * **getSuperclass()**: 클래스의 부모 클래스를 조회한다.
+  * **getInterfaces()**: 클래스의 인터페이스들을 조회한다.
+* 사용자 입력을 받아서 동적으로 객체 만들기
+```java
+Class helloClass = Class.forName("lang.clazz.Hello");
+Hello hello = (Hello) helloClass.getDeclaredConstructor().newInstance();
+```
+* 리플렉션 (reflection): Class를 사용하여 클래스의 메타정보를 기반으로 클래스에 정의된 메서드, 필드, 생성자 등을 조회하고, 객체 인스턴스 생성, 메서드 호출하는 등의 작업들
+* BigDecimal: 매우 정교한 숫자 계산이 필요할 때 사용한다
+* 
