@@ -286,4 +286,112 @@ Hello hello = (Hello) helloClass.getDeclaredConstructor().newInstance();
 ```
 * 리플렉션 (reflection): Class를 사용하여 클래스의 메타정보를 기반으로 클래스에 정의된 메서드, 필드, 생성자 등을 조회하고, 객체 인스턴스 생성, 메서드 호출하는 등의 작업들
 * BigDecimal: 매우 정교한 숫자 계산이 필요할 때 사용한다
-* 
+
+# Seciotn 6. 열거형 - ENUM
+* String 사용 시 타입 안정성이 떨어지는 문제가 발생한다 -> 문자열을 상수로 사용(ENUM)하여 안정성 확보
+* 주석으로 다른 개발자에게 지시하려는것 X -> 개발 의도대로 강제 시켜야함 (유지보수 용이)
+  * ENUM을 사용하고 입력 가짓수를 의도대로 받게 강제해야함
+* ENUM 클래스를 밖에서 생성하지 못하도록 아래와 같이 생성자를 private으로 지정하여 막을 수 있다
+```java
+public class ClassGrade {
+    public static final ClassGrade BASIC = new ClassGrade();
+    public static final ClassGrade GOLD = new ClassGrade();
+    public static final ClassGrade DIAMOND = new ClassGrade();
+    
+    // private 생성자 추가
+    private ClassGrade() {}
+}
+```
+* ENUM을 사용할 때엔 클래스.ENUM명 으로 사용한다
+```java
+if (classGrade == ClassGrade.BASIC) {
+    discountPercent = 10;
+} else if (classGrade == ClassGrade.GOLD) {
+    discountPercent = 20;
+} else if (classGrade == ClassGrade.DIAMOND) {
+    discountPercent = 30;
+} else {
+    System.out.println("할인X");
+}
+```
+* 앞서 작성한 ClassGrade를 enum으로 작성하면 아래와 같이 간결하게 작성할 수 있다
+```java
+public enum Grade {
+    BASIC, GOLD, DIAMOND
+}
+```
+* enum은 열거형 내부에서 상수로 지정하는것 외에 직접 생성이 불가능하다
+* enum을 사용할 때 가독성을 더 좋게 만드는 방법은 열거형을 사용한 곳에(열거형 단어에) 커서를 놓고 option + enter 하면 아래와 같이 메뉴가 나온다. 여기서 enter하면 enum을 import하면서 더욱 직관적인 코드를 작성할 수 있다   
+![img.png](img.png)
+* ordinal()은 가급적 사용하지 않는것이 좋다. 순서가 바뀔 수 있기 때문
+* 이전 if문들을 아래와 같이 리팩토링 할 수도 있다
+```java
+public static final ClassGrade BASIC = new ClassGrade(10);
+public static final ClassGrade GOLD = new ClassGrade(20);
+public static final ClassGrade DIAMOND = new ClassGrade(30);
+```
+* 이전 new로 새로운 객체 생성을 하지 않아도 되게 아래와 같이 만들 수 있다
+```java
+public enum Grade {
+    BASIC(10), GOLD(20), DIAMOND(30);
+
+    private final int discountPercent;
+
+    Grade(int discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+
+    public int getDiscountPercent() {
+        return discountPercent;
+    }
+```
+* enum도 클래스이기 때문에 메서드 선언이 가능하다
+* 최종적으로 아래와 같이 코드를 리팩토링해서 줄일 수 있다
+```java
+package enumeration.ref3;
+
+public enum Grade {
+    BASIC(10), GOLD(20), DIAMOND(30);
+
+    private final int discountPercent;
+
+    Grade(int discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+
+    public int getDiscountPercent() {
+        return discountPercent;
+    }
+
+    // 추가
+    public int discount(int price) {
+        return price * discountPercent / 100;
+    }
+}
+
+```
+```java
+package enumeration.ref3;
+
+public class EnumRefMain3_3 {
+
+    public static void main(String[] args) {
+        int price = 10000;
+
+        Grade[] grades = Grade.values();
+        for (Grade grade : grades) {
+            printDiscount(grade, price);
+        }
+    }
+
+    private static void printDiscount(Grade grade, int price) {
+        System.out.println(grade.name() + " 등급의 할인 금액: " + grade.discount(price));
+    }
+}
+
+```
+* enum에 메서드를 선언 할 때 언제 static을 쓰는가?
+  * 특정 열거값의 속성이나 동작 -> 사용안함
+  * enum 전체를 대상으로 한 검색, 유틸리티 -> 사용함
+
+
