@@ -394,4 +394,106 @@ public class EnumRefMain3_3 {
   * 특정 열거값의 속성이나 동작 -> 사용안함
   * enum 전체를 대상으로 한 검색, 유틸리티 -> 사용함
 
+# Section 7. 날짜와 시간
+* Local: 특정 지역의 날짜와 시간만 고려할 때 사용
+* ZonedDateTime: 시간대를 고려해야 할 때 실제 사용하는 날짜와 시간 정보를 나타내는 데 더 적합
+* OffsetDataTime: UTC로부터의 고정된 오프셋만을 고려해야 할 때 유용
+* Instant: 1970년 1월 1일 0시 0분 0초(UTC)를 기준으로 경과한 시간을 초(나노초 포함) 데이터만 들어있음
+* Period: 두 날짜 사이의 간격을 년, 월, 일 단위로 표현
+* Duration: 두 시간 사이의 간격을 시, 분, 초(나노초) 단위로 표현
+* LocalDate: 날짜만 표현할 때 예) 2013-11-21
+* LocalTime: 시간만 표현할 때 예)08:20:30.213
+* LocalTime: LocalDate와 LocalTime을 합함 예) 2013-11-21T08:20:30.213
+* Local에 시간을 더하는 것과 같은 행위를 하면 불변이므로 객체로 반환값을 받아줘야한다
+* isEquals(): 단순히 비교 대상이 시간적으로 같으면 true반환. 객체가 다르고 타임존이 달라도 됨
+* equals(): 객체의 타입, 타임존 등 내부 데이터의 모든 구성요소가 같아야 true반환
+* ZoneId zoneId = ZoneId.systemDefault(); 는 운영체제가 갖고 사용하는 ZondId를 반환한다
+* ZoneId seoulZoneId = ZoneId.of("Asia/Seoul"); 는 해당 지역의 ZoneId를 반환한다
+* ZoneId는 일광 절약 시간 관련 정보, UTC와의 오프셋 정보를 포함하고 있다
+* ZonedDateTime 클래스: 시간대를 고려한 날짜와 시간을 표현할 때 사용 (출력 예시: 2025-08-07T17:37:29.702075+09:00[Asia/Seoul])
+```java
+public class ZonedDateTime {
+  private final LocalDateTime dateTime;
+  private final ZoneOffset offset; // +9시간 과 같은 정보
+  private final ZoneId zone;
+}
+```
+* 생성 및 타임존 변경
+```java
+ZonedDateTime nowZdt = ZonedDateTime.now();
+System.out.println("nowZdt = " + nowZdt);
+
+LocalDateTime ldt = LocalDateTime.of(2030, 1, 1, 13, 30, 50);
+ZonedDateTime zdt1 = ZonedDateTime.of(ldt, ZoneId.of("Asia/Seoul"));
+System.out.println("zdt1 = " + zdt1);
+
+ZonedDateTime zdt2 = ZonedDateTime.of(2030, 1, 1, 13, 30, 50, 0, ZoneId.of("Asia/Seoul"));
+System.out.println("zdt2 = " + zdt2);
+
+ZonedDateTime utcZdt = zdt2.withZoneSameInstant(ZoneId.of("UTC")); // 타임존 변경
+System.out.println("utcZdt = " + utcZdt); 
+```
+
+* `ZonedDateTime` 이나 `OffsetDateTime` 은 글로벌 서비스를 하지 않으면 잘 사용하지 않는다
+* Instant 클래스는 아래와 같은 구조를 가진다. 날짜를 계산하기 어렵기 때문에 날짜 변환이 필요없는 곳에 사용된다
+```java
+public class Instant {
+    private final long seconds; // 이 초는 1970년 1월 1일 부터 카운트 된다
+    private final int nanos;
+...
+}
+```
+* 활용
+```java
+// 생성
+        Instant now = Instant.now(); // UTC 기준
+        System.out.println("now = " + now);
+
+        ZonedDateTime zdt = ZonedDateTime.now();
+        Instant from = Instant.from(zdt);
+        System.out.println("from = " + from);
+
+        Instant epochStart = Instant.ofEpochSecond(0); // 1970년 1월 1알 0시 0분 0초에 + 0초 한 결과
+        System.out.println("epochStart = " + epochStart);
+
+        // 계산
+        Instant later = epochStart.plusSeconds(3600); // 1970년 1월 1알 0시 0분 0초에 + 3600초 한 결과
+        System.out.println("later = " + later);
+
+        long laterEpochSecond = later.getEpochSecond(); // 1970년 1월 1알 0시 0분 0초 부더 흐른 시간 (초)
+        System.out.println("laterEpochSecond = " + laterEpochSecond); 
+```
+* Period: 두 날짜 사이의 간격을 년, 월, 일 단위로 표현
+* Duration: 두 시간 간격을 시, 분, 초(나노초)로 표현
+## 각 개념 사용법은 코드 참조
+* Duration의 toMinutesPart()는 60분을 나눈 나머지를 반환한다
+* TemporalAccess 인터페이스: 날짜와 시간을 읽기 위한 기본 인터페이스
+* Temporal 인터페이스: 날짜와 시간을 조작하기 위한 기능을 제공
+* TemporalAmount 인터페이스: 시간의 간격을 나타내며, 날짜와 시간 객체에 적용하여 그 객체를 조정할 수 있다
+* ChronoUnit -> TemporalUnit <interface>
+* ChronoField -> TemporalField <interface>
+* ChronoUnit: 날짜, 시간 등등을 .열겨형 으로 사용할 수 있다
+* ChronoField: 날짜와 시간의 특정 부분을 나타낸다
+## 정확한 필드들은 강의자료 6. 날짜와 시간 참고
+* LocalDateTime을 변경 및 수정할 땐 TemporalAdjusters 클래스를 사용한다
+* 포맷팅: 날짜와 시간 데이터를 원하는 포맷의 문자열로 변경 
+```java
+        LocalDate date = LocalDate.of(2024, 12, 31);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        String formattedDate = date.format(formatter);
+```
+* 파싱: 문자열을 날짜와 시간 데이터로 변경
+```java
+        String input = "2030년 01월 01일";
+        LocalDate parseDate = LocalDate.parse(input, formatter);
+        System.out.println("문자열 파싱 날짜와 시간: " + parseDate);
+```
+* 날짜를 더한다고 하면 ChronoUnit.단위 로 더하면 된다
+```java
+LocalDate nextDate = date.plus(2 * i, ChronoUnit.WEEKS);
+```
+* `LocalDateTime dateTime = LocalDateTime.of(year, month, 1, 0, 0, 0);` 에서 일을 최소 1로 놔야 오류가 안난다
+
+* 각 용도별 메서드 표는 6.날짜와 시간.pdf 맨 아래에 정리되어 있다
+
 
