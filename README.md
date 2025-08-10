@@ -496,4 +496,42 @@ LocalDate nextDate = date.plus(2 * i, ChronoUnit.WEEKS);
 
 * 각 용도별 메서드 표는 6.날짜와 시간.pdf 맨 아래에 정리되어 있다
 
+# Section 8. 중첩 클래스, 내부 클래스1
+* 중첩: 어떤 다른 것이 내부에 위치하거나 포함되는 구조적인 관계
+* 내부: 나의 내부에 있는 나를 구성하는 요소
+* 중첩클래스는 둘이 아주 긴밀하게 연결되어 있는 특별한 경우에만 사용해야 한다. 그렇지 않으면 안에 있는 클래스를 밖으로 빼야한다
+* 자바에서는 안쪽에 있는 클래스를 $ 표시로 구분한다
+* 정적 중접 클래스의 유일한 기능은 private 접근 제어자에 접근 할 수 있다는 정도이다
+* 나의 클래스에 포함된 중첩 클래스가 아니라 다른 곳에 있는 중첩 클래스에 접근할 때는 바깥클래스.중첩클래스 로 접근해야한다
+* 정적 중첩 클래스는 그냥 클래스 2개 만든것과 같다. private에 접근할 수 있느것 빼고는 그냥 관계가 없고 중첩만 해둔것이다
+* 내부 인스턴스를 생성할 때 바깥 인스턴스의 참조값을 들고 있기 때문에 바깥 인스턴스의 private에 접근할 수 있는것이다
+* 내부 클래스는 단독으로 생성하지 못한다. 무조건 바깥 클래스를 생성하고 그 다음에 생성가능하다
+* 중첩 클래스를 사용하면 getXxx()와 같이 내부의 정보를 노출할 위험이 적어지면서 더욱 캡슐화를 할 수 있다
+* 중첩클래스를 사용하는 이유
+  * 논리적 그룹화
+  * 캡슐화
+* 같은 이름의 바깥 변수를 호출하는 법
+```java
+public class ShadowingMain {
+
+    public int value = 1;
+
+    class Inner {
+        public int value = 2;
+
+        void go() {
+            int value = 3;
+            System.out.println("value = " + value);
+            System.out.println("this.value = " + this.value);
+            System.out.println("ShadowingMain.value = " + ShadowingMain.this.value);
+        }
+    }
+
+    public static void main(String[] args) {
+        ShadowingMain main = new ShadowingMain();
+        Inner inner = main.new Inner();
+        inner.go();
+    }
+}
+```
 
