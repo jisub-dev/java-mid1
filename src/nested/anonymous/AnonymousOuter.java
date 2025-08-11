@@ -2,14 +2,14 @@ package nested.anonymous;
 
 import nested.local.Printer;
 
-public class LocalOuterV2 {
+public class AnonymousOuter {
 
     private int outInstanceVar = 3;
 
     public void process(int paramVar) {
         int localVar = 1; // 지역 변수
 
-        class LocalPrinter implements Printer {
+        Printer printer = new Printer() {
             int value = 0;
 
             @Override
@@ -19,14 +19,14 @@ public class LocalOuterV2 {
                 System.out.println("paramVar = " + paramVar);
                 System.out.println("outInstanceVar = " + outInstanceVar);
             }
-        }
+        };
 
-        Printer printer = new LocalPrinter();
         printer.print();
+        System.out.println("printer.class=" + printer.getClass()); // 익명 클래스는 $1 이런식으로 나온다
     }
 
     public static void main(String[] args) {
-        LocalOuterV2 localOuter = new LocalOuterV2();
-        localOuter.process(2);
+        AnonymousOuter main = new AnonymousOuter();
+        main.process(2);
     }
 }

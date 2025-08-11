@@ -1,11 +1,11 @@
 package nested.test;
 
-public class OuterClass1 {
+public class OuterClass2 {
 
-    static class NestedClass {
+    class InnerClass {
 
         public void hello() {
-            System.out.println("NestedClass.hello");
+            System.out.println("InnerClass.hello");
         }
     }
 }

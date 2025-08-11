@@ -535,3 +535,47 @@ public class ShadowingMain {
 }
 ```
 
+# Section 9. 중첩 클래스, 내부 클래스2
+* 지역 클래스는 지역 변수에 접근할 수 있음
+* 지역 클래스는 지역 변수 처럼 접근 제어자를 사용할 수 없다. 접근 제어자는 멤버 변수에 사용 가능
+* 클래스 변수: 프로그램 종료까지, 가장 김 (메서드 영역)
+* 인스턴스 변수: 인스턴스의 생존 기간동안 힙 영역에 존재, 어느정도 김
+* 지역 변수: 메서드 호출이 끝나면 사라진다, 가장 짧음 (스택 영역)
+* GC가 되려면 참조하고 있는 변수들이 사라져야 하는데 지역 클래스 인스턴스가 main에서 계속 살아남는다면 main이 종료될 때 까지 생존한다
+  * 하지만 지역 변수의 생명주기는 짧다. 그렇다면 main에서 어떻게 지역 클래스 인스턴스가 이미 종료된 지역 변수 값을 가지고 있는것일까?
+  * 이는 인스턴스를 생성할 때 필요한 지역 변수만 복사해서 보관해두면서 가능하게 된다
+  * `Field[] fields = printer.getClass().getDeclaredFields();`를 통해 볼 수 있다
+    ```
+    field = int nested.local.LocalOuterV3$1LocalPrinter.value // 인스턴스 변수
+    field = final int nested.local.LocalOuterV3$1LocalPrinter.val$localVar // 캡처 변수 
+    field = final int nested.local.LocalOuterV3$1LocalPrinter.val$paramVar // 캡처 변수
+    field = final nested.local.LocalOuterV3 nested.local.LocalOuterV3$1LocalPrinter.this$0 // 바깥 클래스를 참조하기 위한 필드
+    ```
+* 지역 클래스가 접근하는 지역 변수는 절대로 중간에 값이 변하면 안됨 -> final로 선언하거나 사실상 final (선언하고 중간에 값을 한번이라도 바꾸면 안됨)이어야 한다
+  * 중간에 값을 바꾼다면 인스턴스 생성시에 캡처한 변수와 다르게 되므로 동기화 문제가 생긴다
+  * 지역 변수 값을 변경한다면
+    * 켑처한 변수의 값도 변경해야함
+  * 인스턴스에 있는 캡처 변수의 값을 바꾼다면
+    * 지역 변수의 값도 변경해야함
+  * 총체적으로 예상치 못한 곳에서 값을 변경할 수 있어 디버깅을 어렵게 한다
+  * 캡처한 지역 변수를 못바꾸게만 한다면 위에서 말한 문제들을 근본적으로 차단한다. 값을 바꿔야 한다면 다른 새로운 변수를 생성하면 된다
+* 익명 클래스: 클래스의 본문(body)를 정의하면서 동시에 생성한다
+  * 사용하는 이유
+    * 클래스를 별도로 저으이하지 않고도 인터페이스나 추상 클래스를 즉석에서 구현할 수 있어 코드가 더 간결해짐
+  * 하지만 단 한번만 생성이 가능하므로 여러번 생성해야한다면 사용하면 안됨다
+* 변하는 부분과 변하지 않는 부분을 잘 구분하여 리팩토링 해야한다
+* 코드 조각을 메서드에 전달할 때는 인스턴스를 전달하고 해당 인스턴스에 있는 메서드를 호출하면 된다
+* 익명 클래스를 참조값 직접 전달로 전환하여 더욱 코드를 짧게 만들 수 있다
+```java
+    hello(new Process() {
+
+            @Override
+            public void run() {
+                int randomValue = new Random().nextInt(6) + 1;
+                System.out.println("주사위 = " + randomValue);
+            }
+        });
+```
+* 람다: 메서드의 코드 블럭을 직접 전달할 수 있다
+* iter을 통해 배열을 출력할 때 안채워진 요소가 있다면 null 요소에 접근하여 nullPointerException이 발생 할 수 있으므로 fori 로 출력하는게 좋다
+* if문을 사용할 때 검증로직을 먼저 거치고 정상로직을 처리하는게 좋다
